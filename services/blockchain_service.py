@@ -6,9 +6,9 @@ from eth_account import Account
 
 logger = logging.getLogger(__name__)
 
-PRIVATE_KEY      = os.environ.get('PRIVATE_KEY', '')
-INFURA_URL       = os.environ.get('INFURA_URL', '')
-CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS', '')
+PRIVATE_KEY      = os.environ.get('PRIVATE_KEY', '').strip().lstrip('0x')
+INFURA_URL       = os.environ.get('INFURA_URL', '').strip()
+CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS', '').strip()
 
 # Load ABI
 _abi_path = os.path.join(os.path.dirname(__file__), '..', 'abi', 'AuditChain.json')
@@ -22,8 +22,12 @@ contract = w3.eth.contract(
     abi=ABI
 )
 
-# Backend wallet
-wallet = Account.from_key(PRIVATE_KEY) if PRIVATE_KEY else None
+# Backend wallet — defer error to runtime not import time
+try:
+    wallet = Account.from_key(PRIVATE_KEY) if PRIVATE_KEY else None
+except Exception as e:
+    logger.error(f"Failed to load wallet: {e}")
+    wallet = None
 
 
 def store_audit(contract_addr: str, report_hash_bytes: bytes, severity: str, ipfs_cid: str) -> str:
