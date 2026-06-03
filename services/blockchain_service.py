@@ -37,8 +37,10 @@ def store_audit(contract_addr: str, report_hash_bytes: bytes, severity: str, ipf
     Waits for receipt (up to 120 seconds).
     Returns TX hash as '0x...' string.
     """
-    nonce     = w3.eth.get_transaction_count(wallet.address)
-    gas_price = w3.eth.gas_price
+    # Use pending nonce to avoid replacement transaction errors
+    nonce     = w3.eth.get_transaction_count(wallet.address, 'pending')
+    # Add 20% gas price buffer to ensure TX is accepted
+    gas_price = int(w3.eth.gas_price * 1.2)
 
     tx = contract.functions.storeAuditReport(
         Web3.to_checksum_address(contract_addr),
