@@ -15,7 +15,7 @@ def create_app():
     app = Flask(__name__)
 
     CORS(app, origins=[
-        "https://YOUR_NETLIFY_APP.netlify.app",   # ← update with real URL after Netlify deploy
+        "https://cute-meringue-f67c2d.netlify.app",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         "http://localhost:5000",
