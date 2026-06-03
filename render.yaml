@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: auditchain-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PRIVATE_KEY
+        sync: false
+      - key: INFURA_URL
+        sync: false
+      - key: CONTRACT_ADDRESS
+        sync: false
+      - key: PINATA_API_KEY
+        sync: false
+      - key: PINATA_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

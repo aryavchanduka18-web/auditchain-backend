@@ -1,0 +1,67 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,  "internalType": "address", "name": "contractAddr", "type": "address"},
+      {"indexed": false, "internalType": "bytes32", "name": "reportHash",   "type": "bytes32"},
+      {"indexed": false, "internalType": "uint256", "name": "timestamp",    "type": "uint256"},
+      {"indexed": false, "internalType": "string",  "name": "severity",     "type": "string"},
+      {"indexed": false, "internalType": "string",  "name": "ipfsCID",      "type": "string"}
+    ],
+    "name": "AuditStored",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "contractAddr", "type": "address"},
+      {"internalType": "bytes32", "name": "reportHash",   "type": "bytes32"},
+      {"internalType": "string",  "name": "severity",     "type": "string"},
+      {"internalType": "string",  "name": "ipfsCID",      "type": "string"}
+    ],
+    "name": "storeAuditReport",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "contractAddr", "type": "address"},
+      {"internalType": "bytes32", "name": "reportHash",   "type": "bytes32"}
+    ],
+    "name": "verifyAuditReport",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "contractAddr", "type": "address"}],
+    "name": "getAuditRecord",
+    "outputs": [
+      {"internalType": "bytes32", "name": "", "type": "bytes32"},
+      {"internalType": "uint256", "name": "", "type": "uint256"},
+      {"internalType": "string",  "name": "", "type": "string"},
+      {"internalType": "bool",    "name": "", "type": "bool"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalAudits",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
