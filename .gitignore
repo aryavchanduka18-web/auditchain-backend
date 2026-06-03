@@ -6,3 +6,7 @@ venv/
 *.egg-info/
 dist/
 .DS_Store
+# Test/debug scripts — do not publish
+test_gemini.py
+list_models.py
+test.sol
