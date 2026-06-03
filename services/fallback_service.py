@@ -55,6 +55,55 @@ PATTERNS = [
 ]
 
 
+def _generate_fixed_code(source_code: str, findings: list) -> str:
+    """
+    Apply basic inline fixes to the source code based on detected findings.
+    Each fix is annotated with an AUDITCHAIN FIX comment.
+    """
+    import re as _re
+    fixed = source_code
+
+    for f in findings:
+        if f['type'] == 'Reentrancy':
+            # Wrap the vulnerable .call line with a comment
+            fixed = _re.sub(
+                r'([ \t]*)(.*\.call\s*\{[^}]*value[^}]*\}\s*\([^)]*\)\s*;)',
+                r'\1// AUDITCHAIN FIX: Move state update (e.g. balances[msg.sender] = 0) ABOVE this line to follow the Checks-Effects-Interactions pattern\n\1\2',
+                fixed,
+                count=1
+            )
+        elif f['type'] == 'tx.origin Authentication':
+            fixed = _re.sub(
+                r'\btx\.origin\b',
+                'msg.sender /* AUDITCHAIN FIX: tx.origin replaced with msg.sender to prevent phishing */',
+                fixed,
+                count=1
+            )
+        elif f['type'] == 'Selfdestruct':
+            fixed = _re.sub(
+                r'\bselfdestruct\s*\(',
+                'selfdestruct( /* AUDITCHAIN FIX: Add onlyOwner or access control modifier to this function */',
+                fixed,
+                count=1
+            )
+        elif f['type'] == 'Delegatecall':
+            fixed = _re.sub(
+                r'\bdelegatecall\s*\(',
+                'delegatecall( /* AUDITCHAIN FIX: Verify storage layout matches target contract exactly */',
+                fixed,
+                count=1
+            )
+        elif f['type'] == 'Unchecked External Call':
+            fixed = _re.sub(
+                r'(\b\w+\.call\s*\([^)]*\)\s*;)',
+                r'(bool _success,) = \1\n        require(_success, "External call failed"); // AUDITCHAIN FIX: Check return value',
+                fixed,
+                count=1
+            )
+
+    return fixed
+
+
 def analyze(source_code: str, filename: str) -> dict:
     """
     Run rule-based vulnerability analysis on Solidity source code.
@@ -84,11 +133,14 @@ def analyze(source_code: str, filename: str) -> dict:
 
     logger.info(f"Rule-based analysis complete | contract={filename} | severity={overall_severity}")
 
+    fixed_code = _generate_fixed_code(source_code, findings) if findings else source_code
+
     return {
         "contract":        filename,
         "timestamp":       datetime.now(timezone.utc).isoformat(),
         "vulnerabilities": findings,
         "severity":        overall_severity,
         "verdict":         verdict,
-        "analysis_type":   "rule_based"
+        "analysis_type":   "rule_based",
+        "fixed_code":      fixed_code
     }

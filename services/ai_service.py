@@ -30,8 +30,16 @@ Return exactly this structure with no extra keys:
     }
   ],
   "severity": "<CRITICAL|HIGH|MEDIUM|LOW|SAFE>",
-  "verdict": "<SAFE|UNSAFE>"
+  "verdict": "<SAFE|UNSAFE>",
+  "fixed_code": "<complete corrected Solidity source code as a single string>"
 }
+
+Rules for fixed_code:
+- Return the COMPLETE source file with all security issues fixed
+- Above each fix, add a comment: // AUDITCHAIN FIX: <short description>
+- Do NOT change contract logic, only fix security vulnerabilities
+- If verdict is SAFE, return the original code unchanged
+- fixed_code must be valid Solidity — do not truncate or summarize it
 
 Severity rules:
 - CRITICAL: funds can be directly drained (reentrancy, arbitrary external calls, missing auth on withdraw)
