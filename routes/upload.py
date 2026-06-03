@@ -39,7 +39,7 @@ def upload():
 
     # ── 4. Compute hashes and derive contract address ──────────────────────
     report_hash_hex   = compute_report_hash(report)
-    report_hash_bytes = bytes.fromhex(report_hash_hex.lstrip('0x'))
+    report_hash_bytes = bytes.fromhex(report_hash_hex[2:] if report_hash_hex.startswith('0x') else report_hash_hex)
     contract_addr     = derive_contract_addr(source_code)
 
     # ── 5. Store on Ethereum Sepolia ───────────────────────────────────────
