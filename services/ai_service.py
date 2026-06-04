@@ -30,16 +30,8 @@ Return exactly this structure with no extra keys:
     }
   ],
   "severity": "<CRITICAL|HIGH|MEDIUM|LOW|SAFE>",
-  "verdict": "<SAFE|UNSAFE>",
-  "fixed_code": "<complete corrected Solidity source code as a single string>"
+  "verdict": "<SAFE|UNSAFE>"
 }
-
-Rules for fixed_code:
-- Return the COMPLETE source file with all security issues fixed
-- Above each fix, add a comment: // AUDITCHAIN FIX: <short description>
-- Do NOT change contract logic, only fix security vulnerabilities
-- If verdict is SAFE, return the original code unchanged
-- fixed_code must be valid Solidity — do not truncate or summarize it
 
 Severity rules:
 - CRITICAL: funds can be directly drained (reentrancy, arbitrary external calls, missing auth on withdraw)
@@ -97,3 +89,34 @@ def analyze(source_code: str, filename: str) -> dict:
         f"findings={len(result.get('vulnerabilities', []))}"
     )
     return result
+
+
+_FIX_PROMPT = """You are an expert Solidity security engineer.
+
+You will receive Solidity source code with known vulnerabilities.
+Return ONLY the complete fixed Solidity source code — no explanation, no markdown, no JSON.
+Just the raw Solidity code.
+
+Rules:
+- Fix ALL security vulnerabilities
+- Add a comment above each fix: // AUDITCHAIN FIX: <description>
+- Do NOT change contract logic, only fix security issues
+- Return the COMPLETE file — never truncate
+- If the code has no vulnerabilities, return it unchanged"""
+
+
+def generate_fix(source_code: str, filename: str) -> str:
+    """
+    Generate a fixed version of the Solidity source code.
+    Called separately from analyze() so the main pipeline stays fast.
+    Returns fixed source code as a string.
+    Raises Exception on failure.
+    """
+    prompt = f"{_FIX_PROMPT}\n\nFilename: {filename}\n\nSource code:\n{source_code}"
+    response = _model.generate_content(prompt)
+    fixed = response.text.strip()
+    # Strip markdown fences if present
+    fixed = re.sub(r'^```(?:solidity)?\s*', '', fixed, flags=re.MULTILINE)
+    fixed = re.sub(r'```\s*$', '', fixed, flags=re.MULTILINE).strip()
+    logger.info(f"Gemini fix generated | contract={filename}")
+    return fixed

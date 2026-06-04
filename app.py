@@ -35,10 +35,12 @@ def create_app():
     from routes.upload import upload_bp
     from routes.fetch  import fetch_bp
     from routes.verify import verify_bp
+    from routes.fix    import fix_bp
 
     app.register_blueprint(upload_bp, url_prefix='/api')
     app.register_blueprint(fetch_bp,  url_prefix='/api')
     app.register_blueprint(verify_bp, url_prefix='/api')
+    app.register_blueprint(fix_bp,    url_prefix='/api')
 
     # Global error handlers — never leak stack traces to client
     from flask import jsonify as _jsonify

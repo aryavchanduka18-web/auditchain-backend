@@ -56,16 +56,14 @@ def store_audit(contract_addr: str, report_hash_bytes: bytes, severity: str, ipf
     })
 
     signed  = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-    # web3 7.x uses raw_transaction (snake_case)
     raw_tx  = signed.raw_transaction if hasattr(signed, 'raw_transaction') else signed.rawTransaction
     tx_hash = w3.eth.send_raw_transaction(raw_tx)
     tx_hex  = '0x' + tx_hash.hex()
 
-    logger.info(f"TX submitted | hash={tx_hex}")
-
-    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
-    logger.info(f"TX confirmed | block={receipt.blockNumber} | hash={tx_hex}")
-
+    # Return immediately — do NOT wait for receipt.
+    # TX is in the mempool and will confirm within ~15-30s on Sepolia.
+    # The fetch route reads from the event log after confirmation.
+    logger.info(f"TX submitted (non-blocking) | hash={tx_hex}")
     return tx_hex
 
 
